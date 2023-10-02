@@ -2,29 +2,28 @@ terraform {
   required_providers {
     docker = {
       source = "kreuzwerker/docker"
-      version = "1.5.7"
+      version = "3.0.2"
     }
   }
 }
 
 #Configuration du provider Docker avec l'hote local
 provider "docker" {
-  host = "tcp://localhost:8082"
+  host = "unix:///var/run/docker.sock"
 }
 
-#Déclaration de la ressource "docker_image" appelée "build"
+#docker_image appelée build
 resource "docker_image" "build" {
-  name = "myimage:1dda3fc0724e" #Nom et tag de l'image Docker
-  build = "/home/cytech/ING3/terraformTP" #Chemin vers le Dockerfile
-  force_update = true #Force la reconstruction de l'image à chaque fois
+  name = "myimage" #Image
+  build {context = "/home/cytech/ING3/terraformTP"} #Dockerfile
 }
 
-#Déclaration de la ressource "docker_container" appelée "container"
+#La ressource docker_container appelée container
 resource "docker_container" "container" {
   name  = "mycontainer"
-  image = docker_image.build.myimage
+  image = docker_image.build.image_id
   ports {
-    internal = 80 #Port du conteneur
-    external = 8082 #Port de l'hôte
+    internal = 80 #Port conteneur
+    external = 8082 #Port hote
   }
 }
